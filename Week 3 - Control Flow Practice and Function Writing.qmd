@@ -1,0 +1,108 @@
+---
+title: "Week 3 - Logicals, Loops, Vectorized Functions, and Writing Functions"
+author: John Tuong
+format: html
+editor: visual
+---
+
+## Setting up our environment.
+
+-   Loaded in .rda file to use for HW 3.
+
+```{r}
+load("hw2_list.rda")
+```
+
+## Task 1: Control Flow Practice
+
+#### 1. Characterized post-treatment bp (blood pressure) measurement as optimal (bp \<= 120), borderline (120 \< bp \<= 130), and high (bp \> 130). Created new column in each data frame (treatment and placebo) called status.
+
+```{r}
+bp_list$treatment$status <- character(20)
+bp_list$placebo$status <- character(10)
+bp_list
+```
+
+#### 2. Created a for loop and if/then/else logic to create the status column's values for the non-placebo (treatment) data frame.
+
+```{r}
+for (i in 1:nrow(bp_list$treatment)) {
+  bp2 <- bp_list$treatment$post_bp[i]
+  
+  if (bp2 <= 120) {
+  bp_list$treatment$status[i] = "optimal"
+} else if (bp2 > 120 & bp2 <= 130) {
+  bp_list$treatment$status[i] = "borderline"
+} else {
+  bp_list$treatment$status[i] = "high"
+}
+}
+
+bp_list$treatment
+```
+
+#### 3. Created a for loop and if/then/else logic to create the status column's values for the placebo data frame.
+
+```{r}
+for (i in 1:nrow(bp_list$placebo)) {
+  bp3 <- bp_list$placebo$post_bp[i]
+  
+  if (bp3 <= 120) {
+  bp_list$placebo$status[i] = "optimal"
+} else if (bp3 > 120 & bp3 <= 130) {
+  bp_list$placebo$status[i] = "borderline"
+} else {
+  bp_list$placebo$status[i] = "high"
+}
+}
+
+bp_list$placebo
+```
+
+## Task 2.Function Writing
+
+#### 1. Wrote a function that took a list with the two data frames, treatment and placebo, while taking an R function with the default value set to "mean" using my_fun \<- get(stat) (used get to search and retrieve "stat" argument). Then used my_fun to find the statistics of interest for both dataframes for columns (of pre, post, and diff). Afterwards, created sixvalues, a vector, to be returned as a names. Applied function to the list of dataframes without specifying the statistic and then with specifying the statistic as "var", "sd", "min", and "max".
+
+```{r}
+x <- bp_list$treatment
+y <- bp_list$placebo
+list1 <- list(x = x, y = y)
+workingfunction <- function(list1, stat = "mean") {
+  my_fun <- get(stat)
+  
+  treatment_pre <- my_fun(bp_list$treatment$pre_bp)
+  treatment_post <- my_fun(bp_list$treatment$post_bp)
+  treatment_diff <- my_fun(bp_list$treatment$diff_bp)
+  
+  placebo_pre <- my_fun(bp_list$placebo$pre_bp)
+  placebo_post <- my_fun(bp_list$placebo$post_bp)
+  placebo_diff <- my_fun(bp_list$placebo$diff_bp)
+  
+sixvalues <- c(treatment_pre, treatment_post, treatment_diff, placebo_pre, placebo_post, placebo_diff)
+  names(sixvalues) <- c(
+  paste("treatment_pre", stat, sep = "_"),
+  paste("treatment_post", stat, sep = "_"),
+  paste("treatment_diff", stat, sep = "_"),
+  paste("placebo_pre", stat, sep = "_"),
+  paste("placebo_post", stat, sep = "_"),
+  paste("placebo_diff", stat, sep = "_")
+)
+  return(sixvalues)
+}
+
+withoutspecifyingstat <- workingfunction(list1)
+withoutspecifyingstat
+
+var_stuff <- workingfunction(list1, "var")
+var_stuff
+
+sd_stuff <- workingfunction(list1, "sd")
+sd_stuff
+
+min_stuff <- workingfunction(list1, "min")
+min_stuff
+
+max_stuff <- workingfunction(list1, "max")
+max_stuff
+
+```
